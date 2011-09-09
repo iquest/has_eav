@@ -39,6 +39,7 @@ module ActiveRecord
 
           class_eval do
             after_save :save_eav_attributes
+            before_destroy :destroy_eav_attributes
           end
 
           @eav_class      = klass.to_s.camelize.constantize
@@ -175,6 +176,12 @@ module ActiveRecord
             a.save!
           end
         end
+
+        # destroy eav_attributes from database
+        def destroy_eav_attributes # :nodoc:
+          eav_class.send :delete_all, "#{self_key} = #{self.id}"
+        end
+
 
         # override changed - if any of the eav_attributes has changed, the
         # object has changed.
