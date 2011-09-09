@@ -60,15 +60,21 @@ module ActiveRecord
         # class accessor - when the superclass != AR::Base asume we are in STI
         # mode
         def class_eav_attributes # :nodoc:
-          superclass != ActiveRecord::Base ?
-            superclass.class_eav_attributes :
+          if superclass != ActiveRecord::Base
+            superclass.class_eav_attributes.nil? ? @eav_attributes : superclass.class_eav_attributes.merge(@eav_attributes)
+          else
             @eav_attributes
+          end
         end
 
         # class accessor - when the superclass != AR::Base asume we are in STI
         # mode
         def eav_class # :nodoc:
-          superclass != ActiveRecord::Base ? superclass.eav_class : @eav_class
+          if superclass != ActiveRecord::Base 
+            @eav_class ? @eav_class : superclass.eav_class 
+          else
+            @eav_class
+          end
         end
       end # /ClassMethods
 
@@ -205,7 +211,9 @@ module ActiveRecord
         def self_key # :nodoc:
           klass = self.class
           if klass.superclass != ActiveRecord::Base
-            klass = klass.superclass
+            if klass.superclass.eav_class == klass.eav_class
+              klass = klass.superclass
+            end
           end
 
           "#{klass.name.underscore}_id".to_sym
