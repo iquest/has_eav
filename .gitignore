@@ -46,3 +46,6 @@ pkg
 
 test/log/test.log
 test/db/test.sqlite3
+Gemfile.lock
+development
+.project
